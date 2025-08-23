@@ -1,0 +1,15 @@
+
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/notesdb
+
+
+PG_HOST=192.168.0.27
+PG_PORT=5432
+PG_USER=postgres
+PG_PASSWORD=postgres
+PG_DB=notesdb
+
+
+PG_SSL=false
+
+
+PORT=3000
