@@ -4,6 +4,7 @@
     "build": "bash ./deploy-script.sh",
     "tsc": "tsc",
     "start": "node dist/index.js",
+    "script:build": "npm run migration:run && npm build",
     "vercel:build": "npm run migration:run && npm build",
     "vercel:via_script": "bash ./deploy-script.sh",
     "typeorm": "node -r ts-node/register ./node_modules/typeorm/cli.js -d src/data-source.ts",
