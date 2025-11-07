@@ -1,3 +1,8 @@
+#########[ ENVS ]###########
+@LOCAL_APP_URL=http://127.0.0.1:3000
+@PROD_APP_URL=https://thiago-assis-notes-api.vercel.app
+############################
+
 ### Note list
 GET http://127.0.0.1:3000/api/notes
 Accept: application/json
@@ -5,8 +10,20 @@ Content-Type: application/json
 Authorization: Bearer MyAuthToken
 
 
-### My POST request description
+### Add a new note
 POST http://localhost:3000/api/notes/new
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer MyAuthToken
+
+{
+    "title": "Minha nova nota {{$randomInt 1000 9999}}",
+    "content": "Este é o conteúdo da nota. sdfjshdjd {{$randomInt 1000 9999}}",
+    "tags": ["exemplo", "offline"]
+}
+
+### Add a new note (in production)
+POST {{ PROD_APP_URL }}/api/notes/new
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer MyAuthToken
