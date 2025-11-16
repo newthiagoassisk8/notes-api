@@ -4,10 +4,15 @@ import { AppDataSource } from './data-source';
 import { Note } from './entity/Note';
 import * as dotenv from 'dotenv';
 import { Like } from 'typeorm';
-
+import cors from 'cors';
 dotenv.config();
 
 const app = express();
+app.use(cors({
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      credentials: true // Allow sending cookies and other credentials
+    }));
 app.use(express.json());
 
 // healthcheck
@@ -115,11 +120,12 @@ app.delete('/api/notes/:id', async (req: Request, res: Response) => {
 });
 
 const port = Number(process.env.PORT || 3000);
+const HOST = process.env.HOST || "0.0.0.0";
 
 AppDataSource.initialize()
     .then(() => {
-        app.listen(port, () => {
-            console.log(`API rodando em http://localhost:${port}`);
+        app.listen(port, HOST, () => {
+            console.log(`API rodando em http://${HOST}:${port}`);
         });
     })
     .catch((err) => {
