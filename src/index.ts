@@ -126,12 +126,12 @@ app.get('/api/notes', async (req: Request, res: Response) => {
 
 
 const port = Number(process.env.PORT || 3000);
-const HOST = process.env.HOST || "0.0.0.0";
+
 
 AppDataSource.initialize()
     .then(() => {
-        app.listen(port, HOST, () => {
-            console.log(`API rodando em http://${HOST}:${port}`);
+        app.listen(port, () => {
+
         });
     })
     .catch((err) => {
