@@ -20,38 +20,7 @@ app.get('/health', (_req, res) => {
     res.json({ ok: true });
 });
 
-app.get('/api/notes', async (req: Request, res: Response) => {
-    try {
-        const page = Math.max(1, Number(req.query.page) || 1);
-        const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
-        const skip = (page - 1) * limit;
 
-        const q = (req.query.q as string | undefined)?.trim();
-
-        const where = q ? [{ title: Like(`%${q}%`) }, { content: Like(`%${q}%`) }] : undefined;
-
-        const [data, total] = await AppDataSource.getRepository(Note).findAndCount({
-            where,
-            order: { id: 'DESC' },
-            skip,
-            take: limit,
-        });
-
-        return res.json({
-            meta: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-                hasNextPage: skip + data.length < total,
-            },
-            data,
-        });
-    } catch (err: any) {
-        console.error(err);
-        return res.status(500).json({ error: 'Erro ao listar notas.' });
-    }
-});
 
 app.put('/api/notes/:id', async (req: Request, res: Response) => {
     try {
@@ -118,6 +87,43 @@ app.delete('/api/notes/:id', async (req: Request, res: Response) => {
         return res.status(500).json({ error: 'Erro ao deletar nota.' });
     }
 });
+
+app.get('/api/notes', async (req: Request, res: Response) => {
+  try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const q   = (req.query.q   as string | undefined)?.trim();
+    const tag = (req.query.tag as string | undefined)?.trim();
+
+    const repo = AppDataSource.getRepository(Note);
+    const qb = repo.createQueryBuilder('n');
+
+    if (q) qb.andWhere('(n.title ILIKE :q OR n.content ILIKE :q)', { q: `%${q}%` });
+
+    if (tag) {
+      // se você normaliza as tags para lowercase no POST/PUT, normalize aqui também:
+      const t = tag.toLowerCase();
+      qb.andWhere('n.tags IS NOT NULL AND :t = ANY(n.tags)', { t });
+    }
+
+    const [data, total] = await Promise.all([
+      qb.orderBy('n.created_at', 'DESC').skip(skip).take(limit).getMany(), // ou 'n.createdAt'
+      qb.getCount(),
+    ]);
+
+    return res.json({
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit), hasNextPage: skip + data.length < total },
+      data,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro ao listar notas.' });
+  }
+});
+
+
 
 const port = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "0.0.0.0";
