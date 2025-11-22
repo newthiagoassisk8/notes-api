@@ -2,6 +2,6 @@
 set -x
 set -e
 
-npm install;
-
-npm run migration:run && npm build
+npm install
+npm run migration:run
+npm run tsc
